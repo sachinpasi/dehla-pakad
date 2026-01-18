@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "Real-time Multiplayer Card Game",
 };
 
+import { Toaster } from 'react-hot-toast';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,6 +33,7 @@ export default function RootLayout({
         <SocketProvider>
           {children}
         </SocketProvider>
+        <Toaster position="top-right" />
       </body>
     </html>
   );

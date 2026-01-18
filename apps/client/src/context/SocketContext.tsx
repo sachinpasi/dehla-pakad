@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { GameState, Player, Suit } from 'game-engine';
+import toast from 'react-hot-toast';
 
 interface SocketContextProps {
   socket: Socket | null;
@@ -57,6 +58,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Game Events
     socketInstance.on('player_joined', ({ player }: { player: Player }) => {
         console.log('Player Joined:', player);
+        toast.success(`${player.name} joined the game!`);
         setGameState(prev => {
             if (!prev) return null;
             return {
@@ -68,11 +70,14 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     socketInstance.on('game_started', (state: GameState) => {
+        toast.success('Game Started! Good luck!');
         setGameState(state);
     });
 
     socketInstance.on('trump_set', ({ suit, state }: { suit: Suit, state: GameState }) => {
-        console.log('Trump set:', suit); 
+        console.log('Trump set:', suit);
+        const suitSymbol = suit === 'H' ? '♥' : suit === 'D' ? '♦' : suit === 'C' ? '♣' : '♠';
+        toast(`Trump set to ${suitSymbol}`, { icon: '🎺' });
         setGameState(state);
     });
 
@@ -80,17 +85,21 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setGameState(state);
     });
 
-    socketInstance.on('trick_end', ({ state }: { state: GameState }) => {
+    socketInstance.on('trick_end', ({ state, winnerId }: { state: GameState, winnerId?: string }) => {
+        if (winnerId) {
+            const winner = state.players.find(p => p.id === winnerId);
+            if (winner) toast.success(`${winner.name} won the trick!`);
+        }
         setGameState(state);
     });
 
     socketInstance.on('game_over', ({ scores }: { scores: Record<string, number> }) => {
-       alert(`Game Over! Scores: ${JSON.stringify(scores)}`);
+       toast.error('Game Over!', { duration: 5000 });
        setGameState(prev => prev ? { ...prev, status: 'FINISHED', scores } : null);
     });
 
     socketInstance.on('error_message', (msg: string) => {
-        alert('Error: ' + msg);
+        toast.error(msg);
     });
 
     return () => {
