@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   title: "Royal Tens | The Premium Card Game",
   description: "Experience the classic game of Royal Tens (Dehla Pakad) in a premium casino setting.",
   manifest: '/manifest.json',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg', 
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
