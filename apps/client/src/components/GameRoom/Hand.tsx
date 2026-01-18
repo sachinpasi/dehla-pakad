@@ -10,8 +10,9 @@ interface HandProps {
 }
 
 export default function Hand({ hand, onPlayCard, isMyTurn }: HandProps) {
-  // Simple check for mobile logic to disable arc
   const [isMobile, setIsMobile] = React.useState(false);
+  const [selectedCardIdx, setSelectedCardIdx] = React.useState<number | null>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -20,39 +21,82 @@ export default function Hand({ hand, onPlayCard, isMyTurn }: HandProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const handleCardClick = (card: Card, idx: number) => {
+    if (!isMyTurn) return;
+
+    if (isMobile) {
+        // Mobile: First tap selects/pops up, Second tap plays
+        if (selectedCardIdx === idx) {
+            onPlayCard(card);
+            setSelectedCardIdx(null);
+        } else {
+            setSelectedCardIdx(idx);
+        }
+    } else {
+        // Desktop: One click play
+        onPlayCard(card);
+    }
+  };
+
+  // Click outside to deselect
+  React.useEffect(() => {
+      const handleClickOutside = (e: MouseEvent) => {
+          if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+              setSelectedCardIdx(null);
+          }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-64 flex md:justify-center items-end pb-4 md:pb-8 pointer-events-none z-30">
-        {/* Mobile: Scrollable Container / Desktop: Centered Container */}
-        <div className={`
-            flex items-end relative w-full md:max-w-3xl pointer-events-auto h-full px-4
-            ${isMobile ? 'overflow-x-auto justify-start no-scrollbar pl-4 pr-12' : 'justify-center overflow-visible'}
-        `}>
+    <div className="fixed bottom-0 left-0 right-0 h-48 md:h-64 flex justify-center items-end pb-4 md:pb-8 pointer-events-none z-30">
+        <div ref={containerRef} className="relative w-full max-w-5xl h-full flex justify-center items-end pointer-events-auto">
             {hand.map((card, idx) => {
                 const total = hand.length;
                 const center = (total - 1) / 2;
                 const offset = idx - center;
+
+                // Mobile specific tweak: Tight overlap, larger arc
+                // If mobile, we clamp the max spread to fit screen
+                const spreadFactor = isMobile ? (total > 8 ? 18 : 25) : 30; // Mobile: 18px per card if many, else 25px
+                const x = offset * spreadFactor;
                 
-                // Desktop Arc Calculations
-                const rotate = isMobile ? 0 : offset * 5; 
-                const y = isMobile ? 0 : Math.abs(offset) * 5; 
+                const rotate = offset * (isMobile ? 3 : 5);
+                const arcY = Math.abs(offset) * (isMobile ? 3 : 5);
+                
+                const isSelected = selectedCardIdx === idx;
+                const finalY = isSelected ? -60 : arcY; // Pop up 60px if selected
 
                 return (
                     <motion.div
                         key={`${card.suit}-${card.rank}`}
                         layout
-                        initial={{ y: 100, opacity: 0 }}
-                        animate={{ y: y, rotate: rotate, opacity: 1 }}
-                        className={`
-                            relative origin-bottom transition-all duration-200 shrink-0
-                            ${isMobile ? '-ml-8 first:ml-0 mb-4' : '-ml-8 first:ml-0 hover:z-50 hover:-translate-y-10'}
-                        `}
-                        style={{ zIndex: idx }}
+                        initial={{ y: 200, opacity: 0 }}
+                        animate={{ 
+                            y: finalY, 
+                            x: x, 
+                            rotate: rotate, 
+                            scale: isSelected ? 1.2 : 1, // Zoom on select
+                            zIndex: isSelected ? 50 : idx, // Bring to front
+                            opacity: 1 
+                        }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        className="absolute origin-bottom bottom-0"
+                        style={{ 
+                            left: '50%', // Center everyone, then use x to spread
+                            marginLeft: isMobile ? '-32px' : '-48px', // Half of card width to truly center
+                        }}
                     >
                         <CardView 
                             card={card} 
-                            onClick={() => isMyTurn && onPlayCard(card)}
-                            className={`shadow-2xl ${isMyTurn ? 'cursor-pointer hover:ring-2 ring-yellow-400' : 'cursor-default brightness-90'}`}
-                            small={isMobile} // Ensure we use the smaller card size on mobile
+                            onClick={() => handleCardClick(card, idx)}
+                            className={`
+                                shadow-2xl transition-shadow duration-300
+                                ${isMyTurn ? 'cursor-pointer' : 'cursor-default brightness-90'}
+                                ${isSelected ? 'ring-4 ring-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.6)]' : ''}
+                            `}
+                            small={isMobile}
                         />
                     </motion.div>
                 );
