@@ -102,7 +102,7 @@ export default function GameBoard() {
       </div>
 
       {/* --- STATUS BAR --- */}
-      <div className="absolute top-24 left-0 right-0 z-40 flex justify-center pointer-events-none">
+      <div className="absolute top-16 md:top-24 left-0 right-0 z-40 flex justify-center pointer-events-none">
           <AnimatePresence mode="wait">
             {gameState.status !== 'PLAYING' && (
                 <motion.div 
@@ -158,7 +158,7 @@ export default function GameBoard() {
       <div className="flex-1 w-full max-w-6xl relative flex items-center justify-center">
          
          {/* Center Table */}
-         <div className="relative z-10">
+         <div className="relative z-10 scale-75 md:scale-100 transition-transform origin-center">
              <Table playedCards={gameState.playedCards} />
          </div>
 
@@ -171,7 +171,7 @@ export default function GameBoard() {
                  <div 
                     key={player.id} 
                     className={`absolute transition-all duration-500
-                        ${pos === 'top' ? 'top-16 md:top-10 left-1/2 -translate-x-1/2' : ''}
+                        ${pos === 'top' ? 'top-28 md:top-10 left-1/2 -translate-x-1/2' : ''}
                         ${pos === 'left' ? 'left-2 top-1/3 -translate-y-1/2 md:left-8 md:top-1/2' : ''}
                         ${pos === 'right' ? 'right-2 top-1/3 -translate-y-1/2 md:right-8 md:top-1/2' : ''}
                     `}

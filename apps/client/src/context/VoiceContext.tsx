@@ -40,7 +40,13 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       initiator,
       trickle: false,
       stream,
-      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] } 
+      config: { 
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' },
+          { urls: 'stun:stun.stunprotocol.org:3478' }
+        ] 
+      }
     });
 
     peer.on('signal', (signal) => {

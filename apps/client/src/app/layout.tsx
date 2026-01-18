@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dehla Pakad",
-  description: "Real-time Multiplayer Card Game",
+  title: "Royal Tens | The Premium Card Game",
+  description: "Experience the classic game of Royal Tens (Dehla Pakad) in a premium casino setting.",
 };
 
 import { Toaster } from 'react-hot-toast';

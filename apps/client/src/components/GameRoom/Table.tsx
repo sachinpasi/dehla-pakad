@@ -17,8 +17,8 @@ export default function Table({ playedCards }: TableProps) {
       
       {/* Logo/Watermark */}
       {playedCards.length === 0 && (
-          <div className="text-white/10 font-black text-4xl tracking-widest pointer-events-none select-none rotate-45">
-  
+          <div className="text-white/10 font-black text-3xl tracking-widest pointer-events-none select-none -rotate-12 font-serif">
+              ROYAL TENS
           </div>
       )}
 
