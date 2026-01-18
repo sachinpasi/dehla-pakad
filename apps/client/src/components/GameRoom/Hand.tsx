@@ -12,7 +12,7 @@ export default function Hand({ hand, onPlayCard, isMyTurn }: HandProps) {
   // Sort hand? Logic should be in parent or hook. Assuming passed hand is sorted.
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-48 flex justify-center items-end pb-4 overflow-hidden pointer-events-none z-30">
+    <div className="fixed bottom-0 left-0 right-0 h-64 flex justify-center items-end pb-8 pointer-events-none z-30">
         <div className="flex justify-center items-end relative w-full max-w-3xl pointer-events-auto h-full">
             {hand.map((card, idx) => {
                 const total = hand.length;
@@ -26,7 +26,7 @@ export default function Hand({ hand, onPlayCard, isMyTurn }: HandProps) {
                         key={`${card.suit}-${card.rank}`}
                         initial={{ y: 100, opacity: 0 }}
                         animate={{ y: y, rotate: rotate, opacity: 1 }}
-                        className="relative -ml-8 first:ml-0 hover:z-50 hover:-translate-y-10 origin-bottom transition-all duration-200"
+                        className="relative -ml-12 md:-ml-8 first:ml-0 hover:z-50 hover:-translate-y-10 origin-bottom transition-all duration-200"
                         style={{ zIndex: idx }}
                     >
                         <CardView 

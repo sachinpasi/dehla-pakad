@@ -51,13 +51,13 @@ export default function Lobby() {
         className="text-center mb-12 z-10"
       >
         <div className="flex items-center justify-center gap-2 mb-2">
-            <Trophy className="text-casino-gold w-8 h-8" />
-            <span className="text-casino-gold uppercase tracking-widest text-sm font-bold">The Royal Game</span>
+            <Trophy className="text-casino-gold w-6 h-6 md:w-8 md:h-8" />
+            <span className="text-casino-gold uppercase tracking-widest text-xs md:text-sm font-bold">The Royal Game</span>
         </div>
-        <h1 className="text-6xl md:text-8xl font-black text-white tracking-tight drop-shadow-2xl">
+        <h1 className="text-5xl md:text-8xl font-black text-white tracking-tight drop-shadow-2xl">
           DEHLA PAKAD
         </h1>
-        <p className="text-white/60 text-lg mt-4 max-w-md mx-auto">
+        <p className="text-white/60 text-base md:text-lg mt-4 max-w-md mx-auto px-4">
           Experience the classic Indian card game of strategy and partnership.
         </p>
       </motion.div>

@@ -101,6 +101,58 @@ export default function GameBoard() {
          </div>
       </div>
 
+      {/* --- STATUS BAR --- */}
+      <div className="absolute top-24 left-0 right-0 z-40 flex justify-center pointer-events-none">
+          <AnimatePresence mode="wait">
+            {gameState.status !== 'PLAYING' && (
+                <motion.div 
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -20, opacity: 0 }}
+                    className="glass-panel px-4 py-1 md:px-6 md:py-2 rounded-full flex items-center gap-2 backdrop-blur-xl border-casino-gold/30 shadow-lg text-white text-xs md:text-base"
+                >
+                    {gameState.status === 'WAITING' && (
+                        <span className="flex items-center gap-2 text-yellow-200 font-medium">
+                            <span className="animate-pulse">●</span> Waiting for players...
+                        </span>
+                    )}
+                    {gameState.status === 'DEALING_5' && (
+                        <span className="text-casino-gold font-bold">Dealing First 5 Cards...</span>
+                    )}
+                    {gameState.status === 'TRUMP_SELECTION' && (
+                         <span className="flex items-center gap-2">
+                             <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
+                             Wait for 
+                             <span className="font-bold text-yellow-400">
+                                {gameState.players[gameState.bidderIndex]?.id === playerId ? 'YOU' : gameState.players[gameState.bidderIndex]?.name}
+                             </span> 
+                             to choose Trump
+                         </span>
+                    )}
+                    {gameState.status === 'DEALING_8' && (
+                        <span className="text-casino-gold font-bold">Dealing Final 8 Cards...</span>
+                    )}
+                </motion.div>
+            )}
+            
+            {/* Turn Indicator for Playing State */}
+            {gameState.status === 'PLAYING' && (
+                 <motion.div 
+                    key="turn"
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="glass-panel px-8 py-3 rounded-full flex items-center gap-3 backdrop-blur-xl border-white/20 shadow-xl"
+                 >
+                     <span className="text-white/60 text-sm font-bold uppercase tracking-wider">Current Turn</span>
+                     <div className="w-px h-4 bg-white/20" />
+                     <span className={`font-bold text-lg ${isMyTurn ? 'text-yellow-400 animate-pulse' : 'text-white'}`}>
+                        {isMyTurn ? "IT'S YOUR TURN" : gameState.players[gameState.currentTurnIndex]?.name}
+                     </span>
+                 </motion.div>
+            )}
+          </AnimatePresence>
+      </div>
+
 
       {/* --- PLAY AREA --- */}
       <div className="flex-1 w-full max-w-6xl relative flex items-center justify-center">
@@ -119,17 +171,19 @@ export default function GameBoard() {
                  <div 
                     key={player.id} 
                     className={`absolute transition-all duration-500
-                        ${pos === 'top' ? 'top-10 left-1/2 -translate-x-1/2' : ''}
-                        ${pos === 'left' ? 'left-8 top-1/2 -translate-y-1/2' : ''}
-                        ${pos === 'right' ? 'right-8 top-1/2 -translate-y-1/2' : ''}
+                        ${pos === 'top' ? 'top-16 md:top-10 left-1/2 -translate-x-1/2' : ''}
+                        ${pos === 'left' ? 'left-2 top-1/3 -translate-y-1/2 md:left-8 md:top-1/2' : ''}
+                        ${pos === 'right' ? 'right-2 top-1/3 -translate-y-1/2 md:right-8 md:top-1/2' : ''}
                     `}
                  >
-                     <PlayerAvatar 
-                        player={player} 
-                        isTurn={gameState.currentTurnIndex === idx} 
-                        position={pos}
-                        isDealer={gameState.dealerIndex === idx}
-                     />
+                     <div className="scale-75 md:scale-100 origin-center transition-transform">
+                        <PlayerAvatar 
+                            player={player} 
+                            isTurn={gameState.currentTurnIndex === idx} 
+                            position={pos}
+                            isDealer={gameState.dealerIndex === idx}
+                        />
+                     </div>
                  </div>
              );
          })}
