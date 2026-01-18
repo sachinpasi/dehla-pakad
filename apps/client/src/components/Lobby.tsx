@@ -1,87 +1,172 @@
 'use client';
 import { useState } from 'react';
 import { useSocket } from '@/context/SocketContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Users, ArrowRight, Trophy } from 'lucide-react';
 
 export default function Lobby() {
   const { createRoom, joinRoom } = useSocket();
   const [name, setName] = useState('');
   const [roomId, setRoomId] = useState('');
   const [error, setError] = useState('');
-  const [mode, setMode] = useState<'menu' | 'join'>('menu');
+  const [mode, setMode] = useState<'menu' | 'join' | 'create'>('menu');
+  const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
-    if (!name) return setError('Enter Name');
+    if (!name.trim()) return setError('Please enter your name');
+    setLoading(true);
     try {
       await createRoom(name);
     } catch (e: unknown) {
       if (e instanceof Error) setError(e.message);
       else setError(String(e));
+      setLoading(false);
     }
   };
 
   const handleJoin = async () => {
-    if (!name || !roomId) return setError('Enter Name and Room ID');
+    if (!name.trim() || !roomId.trim()) return setError('Enter Name and Room ID');
+    setLoading(true);
     try {
       await joinRoom(roomId, name);
     } catch (e: unknown) {
       if (e instanceof Error) setError(e.message);
       else setError(String(e));
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-green-800 text-white p-4">
-      <h1 className="text-4xl font-bold mb-8">Dehla Pakad</h1>
-      
-      <div className="bg-white/10 backdrop-blur-md p-8 rounded-xl shadow-xl w-full max-w-md border border-white/20">
-        <label className="block mb-2 text-sm font-medium">Your Name</label>
-        <input 
-          className="w-full p-2 mb-4 rounded bg-black/30 border border-white/30 text-white focus:outline-none focus:border-yellow-400"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your name"
-        />
-
-        {error && <p className="text-red-400 mb-4 text-sm">{error}</p>}
-
-        {mode === 'menu' ? (
-          <div className="flex flex-col gap-3">
-             <button 
-                onClick={handleCreate}
-                className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-bold rounded transition"
-             >
-               Create Room
-             </button>
-             <button 
-                onClick={() => setMode('join')}
-                className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded transition"
-             >
-               Join Room
-             </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-             <input 
-              className="w-full p-2 rounded bg-black/30 border border-white/30 text-white focus:outline-none"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              placeholder="Room ID (4 digits)"
-            />
-            <button 
-                onClick={handleJoin}
-                className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded transition"
-             >
-               Enter Room
-             </button>
-             <button 
-                onClick={() => setMode('menu')}
-                className="text-sm text-gray-300 hover:text-white"
-             >
-               Back
-             </button>
-          </div>
-        )}
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-casino-green rounded-full blur-[100px] opacity-30 animate-pulse" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] bg-casino-gold rounded-full blur-[100px] opacity-10" />
       </div>
+
+      <motion.div 
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="text-center mb-12 z-10"
+      >
+        <div className="flex items-center justify-center gap-2 mb-2">
+            <Trophy className="text-casino-gold w-8 h-8" />
+            <span className="text-casino-gold uppercase tracking-widest text-sm font-bold">The Royal Game</span>
+        </div>
+        <h1 className="text-6xl md:text-8xl font-black text-white tracking-tight drop-shadow-2xl">
+          DEHLA PAKAD
+        </h1>
+        <p className="text-white/60 text-lg mt-4 max-w-md mx-auto">
+          Experience the classic Indian card game of strategy and partnership.
+        </p>
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        {mode === 'menu' && (
+          <motion.div 
+            key="menu"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="flex flex-col md:flex-row gap-6 z-10 w-full max-w-2xl"
+          >
+            {/* Create Room Card */}
+            <button 
+              onClick={() => setMode('create')}
+              className="group flex-1 glass-panel p-8 rounded-2xl hover:bg-white/5 transition-all text-left relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                 <Play size={100} />
+              </div>
+              <Play className="text-casino-gold mb-4 w-10 h-10" />
+              <h3 className="text-2xl font-bold text-white mb-2">New Game</h3>
+              <p className="text-white/50">Host a new match and invite your friends via Room ID.</p>
+              <div className="mt-8 flex items-center text-casino-gold font-bold text-sm tracking-wider group-hover:translate-x-2 transition-transform">
+                CREATE ROOM <ArrowRight className="ml-2 w-4 h-4" />
+              </div>
+            </button>
+
+            {/* Join Room Card */}
+            <button 
+              onClick={() => setMode('join')}
+              className="group flex-1 glass-panel p-8 rounded-2xl hover:bg-white/5 transition-all text-left relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                 <Users size={100} />
+              </div>
+              <Users className="text-blue-400 mb-4 w-10 h-10" />
+              <h3 className="text-2xl font-bold text-white mb-2">Join Game</h3>
+              <p className="text-white/50">Enter an existing Room ID to join the table.</p>
+              <div className="mt-8 flex items-center text-blue-400 font-bold text-sm tracking-wider group-hover:translate-x-2 transition-transform">
+                ENTER LOBBY <ArrowRight className="ml-2 w-4 h-4" />
+              </div>
+            </button>
+          </motion.div>
+        )}
+
+        {(mode === 'create' || mode === 'join') && (
+            <motion.div 
+                key="form"
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                className="glass-panel p-8 rounded-2xl w-full max-w-md z-10"
+            >
+                <div className="mb-6">
+                    <button onClick={() => { setMode('menu'); setError(''); }} className="text-white/50 hover:text-white text-sm mb-4">
+                        ← Back to Menu
+                    </button>
+                    <h2 className="text-3xl font-bold text-white">
+                        {mode === 'create' ? 'Host a Game' : 'Join a Game'}
+                    </h2>
+                </div>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-white/70 text-sm mb-2 font-medium">YOUR NAME</label>
+                        <input 
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            placeholder="Enter your name"
+                            className="w-full bg-black/20 border border-white/10 rounded-lg p-4 text-white placeholder-white/30 focus:outline-none focus:border-casino-gold transition-colors"
+                        />
+                    </div>
+
+                    {mode === 'join' && (
+                        <div>
+                            <label className="block text-white/70 text-sm mb-2 font-medium">ROOM ID</label>
+                            <input 
+                                value={roomId}
+                                onChange={e => setRoomId(e.target.value)}
+                                placeholder="e.g. 1234"
+                                className="w-full bg-black/20 border border-white/10 rounded-lg p-4 text-white placeholder-white/30 focus:outline-none focus:border-casino-gold transition-colors font-mono tracking-widest text-center text-xl uppercase"
+                            />
+                        </div>
+                    )}
+
+                    {error && (
+                        <div className="p-3 bg-red-500/20 border border-red-500/50 rounded text-red-200 text-sm text-center">
+                            {error}
+                        </div>
+                    )}
+
+                    <button 
+                        onClick={mode === 'create' ? handleCreate : handleJoin}
+                        disabled={loading}
+                        className={`w-full py-4 rounded-lg font-bold text-lg shadow-lg transform transition-all 
+                            ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-xl'}
+                            ${mode === 'create' 
+                                ? 'bg-gradient-to-r from-casino-gold to-yellow-500 text-black' 
+                                : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                            }`}
+                    >
+                        {loading ? 'Connecting...' : (mode === 'create' ? 'Create Room' : 'Join Room')}
+                    </button>
+                </div>
+            </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

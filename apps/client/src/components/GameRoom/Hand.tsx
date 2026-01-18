@@ -1,5 +1,6 @@
 import { Card } from 'game-engine';
 import CardView from '../CardView';
+import { motion } from 'framer-motion';
 
 interface HandProps {
   hand: Card[];
@@ -8,20 +9,35 @@ interface HandProps {
 }
 
 export default function Hand({ hand, onPlayCard, isMyTurn }: HandProps) {
+  // Sort hand? Logic should be in parent or hook. Assuming passed hand is sorted.
+
   return (
-    <div className={`
-      fixed bottom-4 left-1/2 -translate-x-1/2 
-      flex gap-2 p-4 bg-black/40 rounded-xl backdrop-blur-sm
-      transition-opacity ${isMyTurn ? 'opacity-100 ring-2 ring-yellow-400' : 'opacity-80'}
-    `}>
-      {hand.map((card, idx) => (
-        <CardView 
-          key={`${card.suit}-${card.rank}-${idx}`} 
-          card={card} 
-          onClick={() => isMyTurn && onPlayCard(card)}
-          className={isMyTurn ? 'hover:-translate-y-4' : 'cursor-not-allowed opacity-80'}
-        />
-      ))}
+    <div className="fixed bottom-0 left-0 right-0 h-48 flex justify-center items-end pb-4 overflow-hidden pointer-events-none z-30">
+        <div className="flex justify-center items-end relative w-full max-w-3xl pointer-events-auto h-full">
+            {hand.map((card, idx) => {
+                const total = hand.length;
+                const center = (total - 1) / 2;
+                const offset = idx - center;
+                const rotate = offset * 5; // Rotation degree
+                const y = Math.abs(offset) * 5; // Arc effect
+
+                return (
+                    <motion.div
+                        key={`${card.suit}-${card.rank}`}
+                        initial={{ y: 100, opacity: 0 }}
+                        animate={{ y: y, rotate: rotate, opacity: 1 }}
+                        className="relative -ml-8 first:ml-0 hover:z-50 hover:-translate-y-10 origin-bottom transition-all duration-200"
+                        style={{ zIndex: idx }}
+                    >
+                        <CardView 
+                            card={card} 
+                            onClick={() => isMyTurn && onPlayCard(card)}
+                            className={`shadow-2xl ${isMyTurn ? 'cursor-pointer hover:ring-2 ring-yellow-400' : 'cursor-default brightness-90'}`}
+                        />
+                    </motion.div>
+                );
+            })}
+        </div>
     </div>
   );
 }
