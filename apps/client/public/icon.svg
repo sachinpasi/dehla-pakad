@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fcd34d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b45309;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="green" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+        <stop offset="0%" style="stop-color:#0f4025;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#051f11;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#green)" />
+  <circle cx="256" cy="256" r="200" fill="none" stroke="url(#gold)" stroke-width="16" opacity="0.3" />
+  
+  <!-- Crown simple path -->
+  <path d="M150 200 L200 250 L256 180 L312 250 L362 200 L362 300 L150 300 Z" fill="url(#gold)" />
+  
+  <text x="256" y="420" font-family="serif" font-weight="900" font-size="140" fill="url(#gold)" text-anchor="middle" letter-spacing="4">ROYAL</text>
+</svg>
