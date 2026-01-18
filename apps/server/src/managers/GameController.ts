@@ -79,6 +79,27 @@ export class GameController {
     return { trickCompleted: false };
   }
 
+  restartGame(room: Room) {
+    if (room.state.status !== 'FINISHED') throw new Error('Game not finished');
+    
+    // Rotate dealer
+    room.state.dealerIndex = (room.state.dealerIndex + 1) % 4;
+    
+    // Reset Player State
+    for (const player of room.state.players) {
+        player.hand = [];
+        player.capturedTenCount = 0;
+    }
+    
+    // Reset Game State
+    room.state.trumpSuit = null;
+    room.state.playedCards = [];
+    room.state.scores = {}; // Or keep cumulative? Assuming reset for new hand.
+    
+    // Start new game
+    this.startGame(room);
+  }
+
   private resolveTrickEnd(room: Room) {
     const cards = room.state.playedCards.map(p => p.card);
     const winningCardIdx = resolveTrick(cards, room.state.trumpSuit);
@@ -100,9 +121,19 @@ export class GameController {
     const winnerIndex = room.state.players.findIndex(p => p.id === winnerPlayerId);
     room.state.currentTurnIndex = winnerIndex;
 
-    // Check game end
+    // Check game end conditions
     const cardsRemaining = room.state.players[0].hand.length;
-    if (cardsRemaining === 0) {
+    
+    // Condition 1: All cards played
+    let isGameOver = cardsRemaining === 0;
+    
+    // Condition 2: All 4 Tens captured
+    const totalTensCaptured = room.state.players.reduce((sum, p) => sum + p.capturedTenCount, 0);
+    if (totalTensCaptured === 4) {
+        isGameOver = true;
+    }
+
+    if (isGameOver) {
       room.state.status = 'FINISHED';
     }
 

@@ -5,7 +5,7 @@ import Hand from './GameRoom/Hand';
 import Table from './GameRoom/Table';
 
 export default function GameBoard() {
-  const { socket, gameState, playerId } = useSocket();
+  const { socket, gameState, playerId, restartGame } = useSocket();
 
   if (!gameState || !playerId) return <div>Loading...</div>;
 
@@ -65,7 +65,19 @@ export default function GameBoard() {
              {gameState.status === 'PLAYING' && (
                 isMyTurn ? <span className="text-yellow-400 font-bold animate-pulse">YOUR TURN</span> : `Turn: ${gameState.players[gameState.currentTurnIndex]?.name}`
              )}
-             {gameState.status === 'FINISHED' && 'GAME OVER'}
+             {gameState.status === 'FINISHED' && (
+                <div className="flex flex-col items-center">
+                    <span className="text-xl font-bold text-red-500 mb-2">GAME OVER</span>
+                    {isHost && (
+                        <button 
+                            onClick={restartGame}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg transition-all"
+                        >
+                            Play Next Hand
+                        </button>
+                    )}
+                </div>
+             )}
            </div>
         </div>
 

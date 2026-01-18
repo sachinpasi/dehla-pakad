@@ -12,6 +12,7 @@ interface SocketContextProps {
   joinRoom: (roomId: string, playerName: string) => Promise<void>;
   createRoom: (playerName: string) => Promise<void>;
   leaveRoom: () => void;
+  restartGame: () => void;
 }
 
 const SocketContext = createContext<SocketContextProps>({
@@ -22,6 +23,7 @@ const SocketContext = createContext<SocketContextProps>({
   joinRoom: async () => {},
   createRoom: async () => {},
   leaveRoom: () => {},
+  restartGame: () => {},
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -139,8 +141,22 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setGameState(null);
   };
 
+  const restartGame = () => {
+    if (!socket || !gameState) return;
+    socket.emit('restart_game', { roomId: gameState.roomId });
+  };
+
   return (
-    <SocketContext.Provider value={{ socket, isConnected, gameState, playerId, createRoom, joinRoom, leaveRoom }}>
+    <SocketContext.Provider value={{
+      socket,
+      isConnected,
+      gameState,
+      playerId,
+      joinRoom,
+      createRoom,
+      leaveRoom,
+      restartGame
+    }}>
       {children}
     </SocketContext.Provider>
   );

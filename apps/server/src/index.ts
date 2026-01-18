@@ -111,6 +111,22 @@ io.on('connection', (socket) => {
       }
   });
 
+  socket.on('restart_game', ({ roomId }) => {
+    try {
+      const room = roomManager.getRoom(roomId);
+      if (!room) return;
+      if (room.hostId !== socket.id) {
+          socket.emit('error_message', 'Only host can restart game');
+          return; 
+      }
+      
+      gameController.restartGame(room);
+      io.to(roomId).emit('game_started', room.state);
+    } catch (e: any) {
+      socket.emit('error_message', e.message);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     // Handle player drop?
