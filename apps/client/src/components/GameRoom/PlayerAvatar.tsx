@@ -40,11 +40,11 @@ const PlayerAvatar = memo(({ player, isTurn, position, isDealer }: PlayerAvatarP
       {/* Name Tag */}
       <div className={`
         bg-black/60 backdrop-blur text-white px-3 py-1 rounded-full text-xs font-bold border border-white/10
-        flex items-center gap-2 shadow-lg absolute whitespace-nowrap
-        ${position === 'top' ? '-bottom-8' : ''}
-        ${position === 'bottom' ? '-top-8' : ''}
-        ${position === 'left' ? '-right-24' : ''}
-        ${position === 'right' ? '-left-24' : ''}
+        flex items-center gap-2 shadow-lg absolute whitespace-nowrap transition-all duration-300
+        ${position === 'top' ? 'top-full mt-3 left-1/2 -translate-x-1/2' : ''}
+        ${position === 'bottom' ? 'bottom-full mb-3 left-1/2 -translate-x-1/2' : ''}
+        ${position === 'left' ? 'left-full ml-4 top-1/2 -translate-y-1/2' : ''}
+        ${position === 'right' ? 'right-full mr-4 top-1/2 -translate-y-1/2' : ''}
       `}>
          {isTurn && <Clock size={12} className="text-casino-gold animate-pulse" />}
          {player.name}
