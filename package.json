@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "pnpm --filter game-engine build && pnpm --filter server build",
+    "build:engine": "pnpm --filter game-engine build",
+    "build:server": "pnpm --filter server build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

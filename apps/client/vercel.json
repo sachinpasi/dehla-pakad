@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm install && pnpm run build --filter game-engine && cd apps/client && next build",
+  "buildCommand": "cd ../.. && pnpm install && pnpm run build:engine && cd apps/client && next build",
   "installCommand": "cd ../.. && pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next"
