@@ -18,6 +18,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false, // Prevent zoom for app-like feel
   themeColor: '#051f11',
+  colorScheme: 'dark',
 };
 
 export const metadata: Metadata = {
