@@ -167,6 +167,22 @@ export default function Lobby() {
             </motion.div>
         )}
       </AnimatePresence>
+
+      {/* DEBUG: Player Identity */}
+      <div className="absolute bottom-2 right-2 flex items-center gap-2 z-10 opacity-50 hover:opacity-100 transition-opacity">
+          <span className="text-[10px] text-white/30 font-mono">ID: {useSocket().playerId?.slice(0,8)}</span>
+          <button 
+            onClick={() => {
+                sessionStorage.removeItem('royal_tens_uid');
+                window.location.reload();
+            }}
+            className="text-[10px] text-red-400 border border-red-400/30 px-1 rounded hover:bg-red-500/10"
+            title="Reset Identity (Fixes 'Duplicate Player' issue)"
+          >
+            RESET
+          </button>
+      </div>
+
     </div>
   );
 }
