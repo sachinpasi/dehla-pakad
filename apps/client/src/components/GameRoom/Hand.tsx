@@ -26,7 +26,7 @@ export default function Hand({ hand, onPlayCard, isMyTurn }: HandProps) {
                         key={`${card.suit}-${card.rank}`}
                         initial={{ y: 100, opacity: 0 }}
                         animate={{ y: y, rotate: rotate, opacity: 1 }}
-                        className="relative -ml-12 md:-ml-8 first:ml-0 hover:z-50 hover:-translate-y-10 origin-bottom transition-all duration-200"
+                        className="relative -ml-10 md:-ml-8 first:ml-0 hover:z-50 hover:-translate-y-10 origin-bottom transition-all duration-200"
                         style={{ zIndex: idx }}
                     >
                         <CardView 

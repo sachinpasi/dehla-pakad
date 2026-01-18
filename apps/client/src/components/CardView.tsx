@@ -33,7 +33,7 @@ export default function CardView({ card, onClick, className = '', small }: CardV
       className={`
         relative bg-white rounded-lg shadow-xl cursor-pointer select-none
         flex flex-col justify-between p-2 boarder border-gray-200
-        ${small ? 'w-12 h-16' : 'w-20 h-28 md:w-24 md:h-36'}
+        ${small ? 'w-12 h-16' : 'w-16 h-24 md:w-24 md:h-36'}
         ${className}
       `}
     >
