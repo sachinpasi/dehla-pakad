@@ -39,7 +39,17 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }));
   const [isConnected, setIsConnected] = useState(false);
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [playerId, setPlayerId] = useState<string | null>(null);
+  const [playerId] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+        let storedId = localStorage.getItem('royal_tens_uid');
+        if (!storedId) {
+            storedId = crypto.randomUUID();
+            localStorage.setItem('royal_tens_uid', storedId);
+        }
+        return storedId;
+    }
+    return null;
+  });
 
   useEffect(() => {
     const socketInstance = socket;
@@ -47,7 +57,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     socketInstance.on('connect', () => {
       console.log('Connected to server:', socketInstance.id);
       setIsConnected(true);
-      setPlayerId(socketInstance.id || null);
+      // We don't overwrite playerId with socket.id anymore
     });
 
     socketInstance.on('disconnect', () => {
@@ -55,12 +65,22 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setIsConnected(false);
     });
 
+    // ... (rest of events same)
+    
     // Game Events
     socketInstance.on('player_joined', ({ player }: { player: Player }) => {
         console.log('Player Joined:', player);
         toast.success(`${player.name} joined the game!`);
         setGameState(prev => {
             if (!prev) return null;
+            // Handle Reconnect: If player already exists, update them, don't duplicate
+            const exists = prev.players.find(p => p.id === player.id);
+            if (exists) {
+                return {
+                    ...prev,
+                    players: prev.players.map(p => p.id === player.id ? player : p)
+                };
+            }
             return {
                 ...prev,
                 players: [...prev.players, player],
@@ -118,8 +138,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const createRoom = (playerName: string) => {
     return new Promise<void>((resolve, reject) => {
-      if (!socket) return reject('No socket');
-      socket.emit('create_room', { playerName }, (res: { success: boolean, state: GameState, error?: string }) => {
+      if (!socket || !playerId) return reject('No socket or User ID');
+      socket.emit('create_room', { playerName, userId: playerId }, (res: { success: boolean, state: GameState, error?: string }) => {
         if (res.success) {
           setGameState(res.state);
           resolve();
@@ -132,8 +152,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const joinRoom = (roomId: string, playerName: string) => {
     return new Promise<void>((resolve, reject) => {
-      if (!socket) return reject('No socket');
-      socket.emit('join_room', { roomId, playerName }, (res: { success: boolean, state: GameState, error?: string }) => {
+      if (!socket || !playerId) return reject('No socket or User ID');
+      socket.emit('join_room', { roomId, playerName, userId: playerId }, (res: { success: boolean, state: GameState, error?: string }) => {
         if (res.success) {
           setGameState(res.state);
           resolve();

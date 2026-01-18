@@ -6,12 +6,12 @@ import Hand from './GameRoom/Hand';
 import Table from './GameRoom/Table';
 import PlayerAvatar from './GameRoom/PlayerAvatar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, LogOut } from 'lucide-react';
+import { Mic, MicOff, LogOut, Volume2, VolumeX } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function GameBoard() {
   const { socket, gameState, playerId, restartGame, leaveRoom } = useSocket();
-  const { joinVoice, leaveVoice, toggleMute, isMuted, isVoiceConnected } = useVoice();
+  const { joinVoice, leaveVoice, toggleMute, isMuted, isVoiceConnected, isSpeakerMuted, toggleSpeaker } = useVoice();
 
   if (!gameState || !playerId) return (
       <div className="flex h-screen items-center justify-center text-white bg-casino-green">
@@ -87,9 +87,16 @@ export default function GameBoard() {
                  </button>
              ) : (
                  <>
-                    <button onClick={toggleMute} className={`glass-button w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isMuted ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`} title="Mute/Unmute">
+                    {/* Speaker Toggle */}
+                    <button onClick={toggleSpeaker} className={`glass-button w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isSpeakerMuted ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`} title="Toggle Speaker">
+                        {isSpeakerMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    </button>
+
+                    {/* Mic Toggle */}
+                    <button onClick={toggleMute} className={`glass-button w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isMuted ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'}`} title="Mute Mic">
                         {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
                     </button>
+                    
                     <button onClick={leaveVoice} className="glass-button w-10 h-10 rounded-full flex items-center justify-center text-white/80 hover:text-red-400 hover:bg-red-500/10" title="Leave Voice">
                         <LogOut size={18} />
                     </button>

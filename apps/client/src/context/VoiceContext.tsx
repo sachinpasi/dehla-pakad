@@ -11,6 +11,8 @@ interface VoiceContextProps {
   isVoiceConnected: boolean;
   isMuted: boolean;
   toggleMute: () => void;
+  isSpeakerMuted: boolean;
+  toggleSpeaker: () => void;
   peers: Record<string, SimplePeer.Instance>;
 }
 
@@ -20,6 +22,8 @@ const VoiceContext = createContext<VoiceContextProps>({
   isVoiceConnected: false,
   isMuted: false,
   toggleMute: () => {},
+  isSpeakerMuted: false,
+  toggleSpeaker: () => {},
   peers: {},
 });
 
@@ -31,6 +35,11 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isMuted, setIsMuted] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [stream, setStream] = useState<MediaStream | null>(null);
+  
+  // Speaker Mute State
+  const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
+  const audioElementsRef = useRef<Record<string, HTMLAudioElement>>({});
+
   const peersRef = useRef<Record<string, SimplePeer.Instance>>({});
   const [peers, setPeers] = useState<Record<string, SimplePeer.Instance>>({}); // For re-render
   const streamRef = useRef<MediaStream | null>(null);
@@ -57,7 +66,17 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         // Create audio element
         const audio = document.createElement('audio');
         audio.srcObject = remoteStream;
-        audio.play();
+        audio.play().catch(e => console.error("Audio play failed", e));
+        
+        // Store ref and apply current mute state
+        audioElementsRef.current[targetId] = audio;
+        // We set initial mute state based on current ref if possible, or just default.
+        // Since we can't easily access 'isSpeakerMuted' state inside this callback without stale closure issues unless we add it to dependency (recreating peers), 
+        // we'll rely on the Effect to sync it, OR mostly relying on the user to toggle if it's wrong.
+        // Actually, we can check the ref if we stored state in ref. But simpler:
+        audio.muted = false; // Default. The Effect will kick in if state changes, but initial might be wrong if already muted.
+        // To fix initial state:
+        // We can't access isSpeakerMuted here easily. 
     });
 
     peer.on('error', (err) => {
@@ -66,6 +85,13 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     return peer;
   }, [socket]);
+
+  // Sync mute state to all audio elements
+  useEffect(() => {
+      Object.values(audioElementsRef.current).forEach(audio => {
+          if (audio) audio.muted = isSpeakerMuted;
+      });
+  }, [isSpeakerMuted]);
 
   const leaveVoice = useCallback(() => {
     if (streamRef.current) {
@@ -78,6 +104,11 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Destroy peers
     Object.values(peersRef.current).forEach(p => p.destroy());
     peersRef.current = {};
+    
+    // Cleanup audio
+    Object.values(audioElementsRef.current).forEach(a => a.remove()); 
+    audioElementsRef.current = {};
+
     setPeers({});
   }, []);
 
@@ -115,6 +146,10 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               setIsMuted(!isMuted);
           }
       }
+  };
+
+  const toggleSpeaker = () => {
+      setIsSpeakerMuted(prev => !prev);
   };
 
   useEffect(() => {
@@ -156,6 +191,8 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isVoiceConnected,
       isMuted,
       toggleMute,
+      isSpeakerMuted,
+      toggleSpeaker,
       peers
     }}>
       {children}

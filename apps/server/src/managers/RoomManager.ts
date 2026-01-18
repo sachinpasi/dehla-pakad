@@ -45,16 +45,26 @@ export class RoomManager {
     if (!room) {
       throw new Error('Room not found');
     }
+
+    // Check if player exists (Reconnection)
+    const existingPlayerIndex = room.state.players.findIndex(p => p.id === player.id);
+    if (existingPlayerIndex !== -1) {
+        // Update socketId
+        room.state.players[existingPlayerIndex].socketId = player.socketId;
+        // Optionally update name if changed
+        room.state.players[existingPlayerIndex].name = player.name;
+        
+        // Return room immediately
+        return room;
+    }
+
+    // New Player Checks
     if (room.state.status !== 'WAITING') {
       throw new Error('Game already started');
     }
     if (room.state.players.length >= 4) {
       throw new Error('Room is full');
     }
-    
-    // Check if player already in room (reconnect logic handled elsewhere or here?)
-    // For specific requirement "Player refresh should restore state", we need persistent IDs via socket handshake or token.
-    // For now, assuming new join.
     
     room.state.players.push(player);
     room.state.scores[player.id] = 0;
