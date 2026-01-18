@@ -1,11 +1,13 @@
 'use client';
 import { useSocket } from '@/context/SocketContext';
+import { useVoice } from '@/context/VoiceContext';
 import { Card, Suit } from 'game-engine';
 import Hand from './GameRoom/Hand';
 import Table from './GameRoom/Table';
 
 export default function GameBoard() {
   const { socket, gameState, playerId, restartGame } = useSocket();
+  const { joinVoice, leaveVoice, toggleMute, isMuted, isVoiceConnected } = useVoice();
 
   if (!gameState || !playerId) return <div>Loading...</div>;
 
@@ -39,6 +41,24 @@ export default function GameBoard() {
                 {gameState.trumpSuit === 'H' ? '♥' : gameState.trumpSuit === 'D' ? '♦' : gameState.trumpSuit === 'C' ? '♣' : '♠'}
             </span>
         )}
+        
+        {/* VOICE CHAT CONTROLS */}
+        <div className="mt-4">
+             {!isVoiceConnected ? (
+                 <button onClick={joinVoice} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm shadow">
+                    Join Voice 🎤
+                 </button>
+             ) : (
+                 <div className="flex gap-2">
+                     <button onClick={toggleMute} className={`px-3 py-1 rounded text-sm shadow text-white ${isMuted ? 'bg-red-600' : 'bg-green-600'}`}>
+                        {isMuted ? 'Unmute 🔇' : 'Mute 🎙️'}
+                     </button>
+                     <button onClick={leaveVoice} className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm shadow">
+                        Leave
+                     </button>
+                 </div>
+             )}
+        </div>
       </div>
 
       <div className="absolute top-4 right-4 text-white text-right">

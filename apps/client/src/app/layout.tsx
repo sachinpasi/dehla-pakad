@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 
 import { Toaster } from 'react-hot-toast';
 
+import { VoiceProvider } from "@/context/VoiceContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,7 +33,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SocketProvider>
-          {children}
+          <VoiceProvider>
+            {children}
+          </VoiceProvider>
         </SocketProvider>
         <Toaster position="top-right" />
       </body>

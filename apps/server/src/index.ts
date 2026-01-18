@@ -127,6 +127,11 @@ io.on('connection', (socket) => {
     }
   });
 
+  // VOICE CHAT SIGNALING
+  socket.on('signal', ({ to, signal }: { to: string, signal: any }) => {
+      io.to(to).emit('signal', { from: socket.id, signal });
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
     // Handle player drop?
